@@ -29,35 +29,36 @@ module.exports.connection = null;
 
 module.exports.clearUserTable = () => {
     return new Promise((resolve, reject) => {
-        this.connection.query("TRUNCATE TABLE user;", [], (error, results) => {
+        this.connection.query("DELETE FROM user;", [], (error, results) => {
             if (error) reject(error);
             resolve(results);
         });
     });
 };
-module.exports.clearTransactionTable = () => {
-    return new Promise((resolve, reject) => {
-        this.connection.query(
-            "TRUNCATE TABLE transaction;",
-            [],
-            (error, results) => {
-                if (error) reject(error);
-                resolve(results);
-            }
-        );
-    });
-};
+// module.exports.clearTransactionTable = () => {
+//     return new Promise((resolve, reject) => {
+//         this.connection.query(
+//             "TRUNCATE TABLE transaction;",
+//             [],
+//             (error, results) => {
+//                 if (error) reject(error);
+//                 resolve(results);
+//             }
+//         );
+//     });
+// };
 module.exports.clear = () => {
     return new Promise(async (resolve, reject) => {
         try {
             await this.clearUserTable();
-            await this.clearTransactionTable();
+            // await this.clearTransactionTable();
         } catch (error) {
             reject(error);
         }
         resolve("tables cleared");
     });
 };
+//TODO refactor to remove clearUserTable since transaction table is deleted by cascade ON DELETE
 module.exports.disconnect = () => {
     return new Promise(async (resolve, reject) => {
         const successData = await this.connection.end();

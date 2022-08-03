@@ -24,11 +24,11 @@ describe("dbConnectivity", () => {
             expect(resultSet).toBeDefined();
         });
     });
-    it("should clear transaction table", () => {
-        return db.clearTransactionTable().then((resultSet) => {
-            expect(resultSet).toBeDefined();
-        });
-    });
+    // it("should clear transaction table", () => {
+    //     return db.clearTransactionTable().then((resultSet) => {
+    //         expect(resultSet).toBeDefined();
+    //     });
+    // });
     it("should clear db tables", () => {
         return db.clear().then((successData) => {
             expect(successData).toBe("tables cleared");
