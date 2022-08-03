@@ -34,4 +34,9 @@ describe("dbConnectivity", () => {
             expect(successData).toBe("tables cleared");
         });
     });
+    it("should disconnect from MySQL db", () => {
+        return db.disconnect().then((successData) => {
+            expect(successData).toBeDefined();
+        });
+    });
 });

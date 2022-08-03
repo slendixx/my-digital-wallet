@@ -58,3 +58,9 @@ module.exports.clear = () => {
         resolve("tables cleared");
     });
 };
+module.exports.disconnect = () => {
+    return new Promise(async (resolve, reject) => {
+        const successData = await this.connection.end();
+        resolve(successData);
+    });
+};
