@@ -20,38 +20,24 @@ module.exports.createConnection = () => {
         const newConnection = mysql.createConnection(
             await this.readCredentials()
         );
-        this.connection = newConnection;
         resolve(newConnection);
     });
 };
 
-module.exports.connection = null;
-
 module.exports.clearUserTable = () => {
-    return new Promise((resolve, reject) => {
-        this.connection.query("DELETE FROM user;", [], (error, results) => {
+    return new Promise(async (resolve, reject) => {
+        const connection = await this.createConnection();
+        connection.query("DELETE FROM user;", [], (error, results) => {
             if (error) reject(error);
             resolve(results);
         });
     });
 };
-// module.exports.clearTransactionTable = () => {
-//     return new Promise((resolve, reject) => {
-//         this.connection.query(
-//             "TRUNCATE TABLE transaction;",
-//             [],
-//             (error, results) => {
-//                 if (error) reject(error);
-//                 resolve(results);
-//             }
-//         );
-//     });
-// };
+
 module.exports.clear = () => {
     return new Promise(async (resolve, reject) => {
         try {
             await this.clearUserTable();
-            // await this.clearTransactionTable();
         } catch (error) {
             reject(error);
         }
@@ -59,9 +45,9 @@ module.exports.clear = () => {
     });
 };
 //TODO refactor to remove clearUserTable since transaction table is deleted by cascade ON DELETE
-module.exports.disconnect = () => {
+module.exports.disconnect = (connection) => {
     return new Promise(async (resolve, reject) => {
-        const successData = await this.connection.end();
+        const successData = await connection.end();
         resolve(successData);
     });
 };
