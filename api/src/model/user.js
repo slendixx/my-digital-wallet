@@ -19,12 +19,12 @@ module.exports.create = (userData) => {
             ],
             //TODO implement password hashing
             async (error, results) => {
-                if (error) reject(error);
+                if (error) return reject(error);
                 connection.execute(
                     selectQuery,
                     [results.insertId],
                     (error, results) => {
-                        if (error) reject(error);
+                        if (error) return reject(error);
                         const [createdUser] = results;
                         connection.end();
                         resolve(createdUser);
@@ -39,7 +39,7 @@ module.exports.getById = (userId) => {
     return new Promise(async (resolve, reject) => {
         const connection = await createConnection();
         connection.execute(selectQuery, [userId], (error, results) => {
-            if (error) reject(error);
+            if (error) return reject(error);
             const [userData] = results;
             connection.end();
             resolve(userData);
