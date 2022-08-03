@@ -19,14 +19,16 @@ describe("Transaction Model", () => {
       description: "",
       user_id: createdUserData.id,
     };
-    return model.create(transactionData).then((createdTransaction) => {
-      expect(createdTransaction.id).toBeDefined();
-      expect(createdTransaction.amount).toBe(transactionData.amount);
-      expect(createdTransaction.type).toBe(transactionData.type);
-      expect(createdTransaction.category).toBe(transactionData.category);
-      expect(createdTransaction.user_id).toBe(transactionData.user_id);
-      expect(createdTransaction.date).toBeDefined();
-    });
+    const createdTransaction = await model.create(transactionData);
+    expect(createdTransaction.id).toBeDefined();
+    expect(createdTransaction.amount).toBe(transactionData.amount);
+    expect(createdTransaction.type).toBe(transactionData.type);
+    expect(createdTransaction.category).toBe(transactionData.category);
+    expect(createdTransaction.user_id).toBe(transactionData.user_id);
+    expect(createdTransaction.date).toBeDefined();
+
+    const user = await userModel.getById(transactionData.user_id);
+    expect(user.balance).toBe(100);
   });
   it("should delete a transaction by id and decrease user balance by the transaction amount", async () => {
     const userData = {
