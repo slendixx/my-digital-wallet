@@ -15,6 +15,14 @@ module.exports.readCredentials = () => {
         );
     });
 };
-module.exports.createConnection = async () => {
-    return mysql.createConnection(await this.readCredentials());
+module.exports.createConnection = () => {
+    return new Promise(async (resolve, reject) => {
+        const newConnection = mysql.createConnection(
+            await this.readCredentials()
+        );
+        this.connection = newConnection;
+        resolve(newConnection);
+    });
 };
+
+module.exports.connection = null;
