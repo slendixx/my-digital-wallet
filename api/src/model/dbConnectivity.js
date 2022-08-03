@@ -26,3 +26,35 @@ module.exports.createConnection = () => {
 };
 
 module.exports.connection = null;
+
+module.exports.clearUserTable = () => {
+    return new Promise((resolve, reject) => {
+        this.connection.query("TRUNCATE TABLE user;", [], (error, results) => {
+            if (error) reject(error);
+            resolve(results);
+        });
+    });
+};
+module.exports.clearTransactionTable = () => {
+    return new Promise((resolve, reject) => {
+        this.connection.query(
+            "TRUNCATE TABLE transaction;",
+            [],
+            (error, results) => {
+                if (error) reject(error);
+                resolve(results);
+            }
+        );
+    });
+};
+module.exports.clear = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await this.clearUserTable();
+            await this.clearTransactionTable();
+        } catch (error) {
+            reject(error);
+        }
+        resolve("tables cleared");
+    });
+};

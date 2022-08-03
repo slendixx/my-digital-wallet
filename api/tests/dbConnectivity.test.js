@@ -19,4 +19,19 @@ describe("dbConnectivity", () => {
         const createdConnection = await db.createConnection();
         expect(createdConnection).toEqual(db.connection);
     });
+    it("should clear user table", () => {
+        return db.clearUserTable().then((resultSet) => {
+            expect(resultSet).toBeDefined();
+        });
+    });
+    it("should clear transaction table", () => {
+        return db.clearTransactionTable().then((resultSet) => {
+            expect(resultSet).toBeDefined();
+        });
+    });
+    it("should clear db tables", () => {
+        return db.clear().then((successData) => {
+            expect(successData).toBe("tables cleared");
+        });
+    });
 });
