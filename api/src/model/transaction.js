@@ -4,6 +4,7 @@ const insertQuery =
   "INSERT INTO transaction (amount,type,category,description,user_id,date) VALUES (?,?,?,?,?,?);";
 const selectQuery =
   "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE id = ?;";
+const deleteQuery = "DELETE FROM transaction";
 
 module.exports.create = (transactionData) => {
   return new Promise(async (resolve, reject) => {
@@ -30,5 +31,16 @@ module.exports.create = (transactionData) => {
         });
       }
     );
+  });
+};
+
+module.exports.delete = (transactionId) => {
+  return new Promise(async (resolve, reject) => {
+    const connection = await createConnection();
+    connection.execute(deleteQuery, [transactionId], (error, results) => {
+      if (error) return reject(error);
+      connection.end();
+      resolve("transaction deleted");
+    });
   });
 };
