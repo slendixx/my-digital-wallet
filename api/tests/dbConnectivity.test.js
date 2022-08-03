@@ -9,4 +9,10 @@ describe("dbConnectivity", () => {
             expect(credentials).toHaveProperty("database");
         });
     });
+
+    it("should create a connection obejct to MySQL db", () => {
+        return dbConnectivity.createConnection().then((successData) => {
+            expect(successData).toBeDefined();
+        });
+    });
 });

@@ -1,5 +1,6 @@
 const path = require("path");
 const { readFile } = require("fs");
+const mysql = require("mysql2");
 
 module.exports.readCredentials = () => {
     return new Promise((resolve, reject) => {
@@ -13,4 +14,7 @@ module.exports.readCredentials = () => {
             }
         );
     });
+};
+module.exports.createConnection = async () => {
+    return mysql.createConnection(await this.readCredentials());
 };
