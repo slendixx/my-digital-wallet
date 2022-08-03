@@ -17,4 +17,18 @@ describe("User Model", () => {
             expect(createdUser.balance).toBe(0);
         });
     });
+
+    it("should get user by it's id", async () => {
+        const newUserData = {
+            email: "esteban@abc.com",
+            firstName: "esteban",
+            lastName: "duran",
+            password: "esteban12345",
+        };
+        const createdUser = await model.create(newUserData);
+
+        return model.getById(createdUser.id).then((userData) => {
+            expect(userData).toEqual(createdUser);
+        });
+    });
 });

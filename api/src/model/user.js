@@ -34,3 +34,25 @@ module.exports.create = (userData) => {
         );
     });
 };
+
+module.exports.getById = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        const connection = await createConnection();
+        connection.execute(
+            `
+                SELECT 
+                    first_name, last_name, email,balance, id 
+                FROM user 
+                WHERE
+                    id = ?;
+                `,
+            [userId],
+            (error, results) => {
+                if (error) reject(error);
+                const [userData] = results;
+                connection.end();
+                resolve(userData);
+            }
+        );
+    });
+};
