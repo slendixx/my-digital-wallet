@@ -11,12 +11,13 @@ module.exports.create = (userData) => {
                 userData.password,
                 0,
             ],
+            //TODO implement password hashing
             async (error, results) => {
                 if (error) reject(error);
                 connection.execute(
                     `
                 SELECT 
-                    first_name, last_name, email,balance 
+                    first_name, last_name, email,balance, id 
                 FROM user 
                 WHERE
                     id = ?;

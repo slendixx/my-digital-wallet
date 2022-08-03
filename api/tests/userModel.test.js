@@ -10,6 +10,7 @@ describe("User Model", () => {
             password: "esteban12345",
         };
         return model.create(userData).then((createdUser) => {
+            expect(createdUser.id).toBeDefined();
             expect(createdUser.email).toBe(userData.email);
             expect(createdUser.first_name).toBe(userData.firstName);
             expect(createdUser.last_name).toBe(userData.lastName);
