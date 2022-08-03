@@ -1,9 +1,15 @@
 const { createConnection } = require("./dbConnectivity");
+
+const selectQuery =
+    "SELECT first_name, last_name, email,balance, id FROM user WHERE id = ?;";
+const insertQuery =
+    "INSERT INTO user (first_name, last_name, email, password, balance) VALUES (?,?,?,?,?);";
+
 module.exports.create = (userData) => {
     return new Promise(async (resolve, reject) => {
         const connection = await createConnection();
         connection.execute(
-            "INSERT INTO user (first_name, last_name, email, password, balance) VALUES (?,?,?,?,?);",
+            insertQuery,
             [
                 userData.firstName,
                 userData.lastName,
@@ -15,13 +21,7 @@ module.exports.create = (userData) => {
             async (error, results) => {
                 if (error) reject(error);
                 connection.execute(
-                    `
-                SELECT 
-                    first_name, last_name, email,balance, id 
-                FROM user 
-                WHERE
-                    id = ?;
-                `,
+                    selectQuery,
                     [results.insertId],
                     (error, results) => {
                         if (error) reject(error);
@@ -38,21 +38,11 @@ module.exports.create = (userData) => {
 module.exports.getById = (userId) => {
     return new Promise(async (resolve, reject) => {
         const connection = await createConnection();
-        connection.execute(
-            `
-                SELECT 
-                    first_name, last_name, email,balance, id 
-                FROM user 
-                WHERE
-                    id = ?;
-                `,
-            [userId],
-            (error, results) => {
-                if (error) reject(error);
-                const [userData] = results;
-                connection.end();
-                resolve(userData);
-            }
-        );
+        connection.execute(selectQuery, [userId], (error, results) => {
+            if (error) reject(error);
+            const [userData] = results;
+            connection.end();
+            resolve(userData);
+        });
     });
 };
