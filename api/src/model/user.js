@@ -25,6 +25,7 @@ module.exports.create = (userData) => {
                     (error, results) => {
                         if (error) reject(error);
                         const [createdUser] = results;
+                        connection.end();
                         resolve(createdUser);
                     }
                 );
