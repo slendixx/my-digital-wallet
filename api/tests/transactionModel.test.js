@@ -1,6 +1,7 @@
 const userModel = require("../src/model/user");
 const { clear } = require("../src/model/dbConnectivity");
 const model = require("../src/model/transaction");
+const { query } = require("express");
 beforeEach(async () => await clear());
 afterEach(async () => await clear());
 
@@ -91,10 +92,25 @@ describe("Transaction get", () => {
       expect(transactions).toEqual(transactionsData);
     });
   });
-  it("should get all transactions for a user_id filtered by category", () => {
-    expect();
-  });
+  // it("should get all transactions for a user_id filtered by category", () => {});
   // it("should get all transactions for a user_id filtered by type", () => {});
   // it("should get all transactions for a user_id filtered by type & category", () => {});
   // it("should get all transactions for a user_id from least recent to most recent", () => {});
+});
+
+describe("TransactionQuery", () => {
+  it("should create a query for 'incoming', 'other', order by date ASC, limit by 10 & offset by 5", () => {
+    const query = new model.TransactionQuery()
+      .filterBy("type", "incoming")
+      .filterBy("category", "other")
+      .orderBy("date", "asc")
+      .limitBy(10)
+      .offsetBy(5);
+    return query.execute().then((successData) => {
+      expect(successData).toEqual([]);
+      expect(query.innerSQL).toBe(
+        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE type = 'incoming' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
+      );
+    });
+  });
 });

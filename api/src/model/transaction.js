@@ -80,3 +80,92 @@ module.exports.getByUserId = (userId) => {
     });
   });
 };
+//TODO correct incoming & outgoing fields to out inbound & outbound respectively
+class TransactionQuery {
+  static filters = [
+    {
+      field: "type",
+      values: ["incoming", "outgoing"],
+    },
+    {
+      field: "category",
+      values: ["other", "taxes"],
+    },
+  ];
+  static orderFields = new Set(["date", "amount"]);
+
+  constructor() {
+    this.innerSQL =
+      "SELECT id,amount,type,category,description,user_id,date FROM transaction {filter} {order} {limit} {offset};";
+    this.appliedFilters = [];
+    this.orderField = "date";
+    this.orderDirection = "asc";
+    this.limitAmount = null;
+    this.offsetAmount = null;
+  }
+  filterBy(field, value) {
+    const isValidFilter = TransactionQuery.filters.some((filter) => {
+      return (
+        filter.field === field &&
+        filter.values.some((filterValue) => {
+          return filterValue === value;
+        })
+      );
+    });
+    if (!isValidFilter) return this;
+    this.appliedFilters.push({ field, value });
+    return this;
+  }
+  orderBy(field, direction) {
+    if (!TransactionQuery.orderFields.has(field)) return this;
+    this.orderField = field;
+    if (!(direction === "asc" || direction === "des")) return this;
+    this.orderDirection = direction;
+    return this;
+  }
+  limitBy(amount) {
+    if (amount < 0) return this;
+    this.limitAmount = amount;
+    return this;
+  }
+  offsetBy(amount) {
+    if (amount < 0) return this;
+    this.offsetAmount = amount;
+    return this;
+  }
+  #prepareStatement() {
+    const filters =
+      "WHERE" +
+      this.appliedFilters
+        .map((filter, index) => {
+          return `${index !== 0 ? "AND" : ""} ${filter.field} = '${
+            filter.value
+          }'`;
+        })
+        .join(" ");
+    const order = `ORDER BY ${
+      this.orderField
+    } ${this.orderDirection.toUpperCase()}`;
+
+    const limit = this.limitAmount !== null ? `LIMIT ${this.limitAmount}` : "";
+    const offset =
+      this.offsetAmount !== null ? `OFFSET ${this.offsetAmount}` : "";
+
+    this.innerSQL = this.innerSQL
+      .replace("{filter}", filters)
+      .replace("{order}", order)
+      .replace("{limit}", limit)
+      .replace("{offset}", offset);
+  }
+  execute() {
+    return new Promise(async (resolve, reject) => {
+      this.#prepareStatement();
+      const connection = await createConnection();
+      connection.execute(this.innerSQL, [], (error, results) => {
+        if (error) reject(error);
+        resolve(results);
+      });
+    });
+  }
+}
+module.exports.TransactionQuery = TransactionQuery;
