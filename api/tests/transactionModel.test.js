@@ -69,12 +69,23 @@ describe("Transaction Model", () => {
       });
   });
 });
-/*
+
 describe("Transaction get", () => {
-  it("should get all transactions for a user_id", () => {});
-  it("should get all transactions for a user_id filtered by category", () => {});
-  it("should get all transactions for a user_id filtered by type", () => {});
-  it("should get all transactions for a user_id filtered by type & category", () => {});
-  it("should get all transactions for a user_id from least recent to most recent", () => {});
+  it("should get all transactions for a user id", async () => {
+    //TODO refactor the next 3 lines to remove duplication
+    const createdUserData = await userModel.create(userData);
+    transactionData.user_id = createdUserData.id;
+    const transactionsData = [
+      await model.create(transactionData),
+      await model.create(transactionData),
+    ];
+
+    return model.getByUserId(createdUserData.id).then((transactions) => {
+      expect(transactions).toEqual(transactionsData);
+    });
+  });
+  // it("should get all transactions for a user_id filtered by category", () => {});
+  // it("should get all transactions for a user_id filtered by type", () => {});
+  // it("should get all transactions for a user_id filtered by type & category", () => {});
+  // it("should get all transactions for a user_id from least recent to most recent", () => {});
 });
-*/

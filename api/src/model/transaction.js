@@ -4,6 +4,8 @@ const insertQuery =
   "INSERT INTO transaction (amount,type,category,description,user_id,date) VALUES (?,?,?,?,?,?);";
 const selectQuery =
   "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE id = ?;";
+const selectByUserIdQuery =
+  "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = ?;";
 const deleteQuery = "DELETE FROM transaction";
 const updateQuery =
   "UPDATE transaction SET amount=?,category=?,description=? WHERE id = ?;";
@@ -64,5 +66,17 @@ module.exports.updateById = (transactionId, newData) => {
         });
       }
     );
+  });
+};
+
+module.exports.getByUserId = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    const connection = await createConnection();
+
+    connection.execute(selectByUserIdQuery, [userId], (error, transactions) => {
+      if (error) return reject(error);
+      connection.end();
+      resolve(transactions);
+    });
   });
 };
