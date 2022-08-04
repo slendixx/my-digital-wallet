@@ -92,15 +92,17 @@ describe("Transaction get", () => {
       expect(transactions).toEqual(transactionsData);
     });
   });
-  // it("should get all transactions for a user_id filtered by category", () => {});
-  // it("should get all transactions for a user_id filtered by type", () => {});
-  // it("should get all transactions for a user_id filtered by type & category", () => {});
-  // it("should get all transactions for a user_id from least recent to most recent", () => {});
+  // it("should get all transactions for a user_id filtered by category & ordered by date asc", () => {
+  //   expect(transactions).toBe([]);
+  // });
+  // it("should get all transactions for a user_id ordered by date des", () => {});
+  // it("should limit transactions read to 2 with an offset of 1 for a user_id & ordered by date asc", () => {});
 });
 
 describe("TransactionQuery", () => {
   it("should create a query for 'incoming', 'other', order by date ASC, limit by 10 & offset by 5", () => {
-    const query = new model.TransactionQuery()
+    const userId = 1;
+    const query = new model.TransactionQuery(userId)
       .filterBy("type", "incoming")
       .filterBy("category", "other")
       .orderBy("date", "asc")
@@ -109,7 +111,7 @@ describe("TransactionQuery", () => {
     return query.execute().then((successData) => {
       expect(successData).toEqual([]);
       expect(query.innerSQL).toBe(
-        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE type = 'incoming' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
+        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 AND type = 'incoming' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
       );
     });
   });

@@ -94,7 +94,7 @@ class TransactionQuery {
   ];
   static orderFields = new Set(["date", "amount"]);
 
-  constructor() {
+  constructor(userId) {
     this.innerSQL =
       "SELECT id,amount,type,category,description,user_id,date FROM transaction {filter} {order} {limit} {offset};";
     this.appliedFilters = [];
@@ -102,6 +102,7 @@ class TransactionQuery {
     this.orderDirection = "asc";
     this.limitAmount = null;
     this.offsetAmount = null;
+    this.userId = userId;
   }
   filterBy(field, value) {
     const isValidFilter = TransactionQuery.filters.some((filter) => {
@@ -135,7 +136,9 @@ class TransactionQuery {
   }
   #prepareStatement() {
     const filters =
-      "WHERE" +
+      "WHERE user_id = " +
+      this.userId +
+      " AND" +
       this.appliedFilters
         .map((filter, index) => {
           return `${index !== 0 ? "AND" : ""} ${filter.field} = '${
