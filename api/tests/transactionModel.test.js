@@ -44,6 +44,30 @@ describe("Transaction Model", () => {
     const user = await userModel.getById(transactionData.user_id);
     expect(user.balance).toBe(0);
   });
+
+  it("should update amount, category, description by transaction id", async () => {
+    const createdUserData = await userModel.create(userData);
+    transactionData.user_id = createdUserData.id;
+    const createdTransaction = await model.create(transactionData);
+    //user.balance is now 100
+    const newData = {
+      id: createdTransaction.id,
+      amount: 200,
+      category: "taxes",
+      description: "updated description",
+    };
+    return model
+      .updateById(createdTransaction.id, newData)
+      .then(async (updatedTransaction) => {
+        expect(updatedTransaction.id).toBe(newData.id);
+        expect(updatedTransaction.amount).toBe(newData.amount);
+        expect(updatedTransaction.category).toBe(newData.category);
+        expect(updatedTransaction.description).toBe(newData.description);
+
+        const user = await userModel.getById(createdUserData.id);
+        expect(user.balance).toBe(200);
+      });
+  });
 });
 /*
 describe("Transaction get", () => {
