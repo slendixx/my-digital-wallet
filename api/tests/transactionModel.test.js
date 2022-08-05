@@ -13,13 +13,13 @@ const userData = {
 };
 const transactionData1 = {
   amount: 100,
-  type: "incoming",
+  type: "inbound",
   category: "other",
   description: "",
 };
 const transactionData2 = {
   amount: 50,
-  type: "outgoing",
+  type: "outbound",
   category: "taxes",
   description: "",
 };
@@ -29,16 +29,17 @@ describe("Transaction Model", () => {
     const createdUserData = await userModel.create(userData);
     transactionData1.user_id = createdUserData.id;
 
-    const createdTransaction = await model.create(transactionData1);
-    expect(createdTransaction.id).toBeDefined();
-    expect(createdTransaction.amount).toBe(transactionData1.amount);
-    expect(createdTransaction.type).toBe(transactionData1.type);
-    expect(createdTransaction.category).toBe(transactionData1.category);
-    expect(createdTransaction.user_id).toBe(transactionData1.user_id);
-    expect(createdTransaction.date).toBeDefined();
+    return model.create(transactionData1).then(async (createdTransaction) => {
+      expect(createdTransaction.id).toBeDefined();
+      expect(createdTransaction.amount).toBe(transactionData1.amount);
+      expect(createdTransaction.type).toBe(transactionData1.type);
+      expect(createdTransaction.category).toBe(transactionData1.category);
+      expect(createdTransaction.user_id).toBe(transactionData1.user_id);
+      expect(createdTransaction.date).toBeDefined();
 
-    const user = await userModel.getById(transactionData1.user_id);
-    expect(user.balance).toBe(100);
+      const user = await userModel.getById(transactionData1.user_id);
+      expect(user.balance).toBe(100);
+    });
   });
 
   it("should delete a transaction by id and decrease user balance by the transaction amount", async () => {
@@ -92,18 +93,23 @@ describe("Transaction get", () => {
       expect(transactions).toEqual(transactionsData);
     });
   });
-  // it("should get all transactions for a user_id filtered by category & ordered by date asc", () => {
-  //   expect(transactions).toBe([]);
+  // it("should get all transactions for a user_id & category 'other' ", () => {
+  //   const queryOptions = {
+  //     new Filer
+  //   }
+  //   return model.get(queryOptions).then(()=>{
+  //     expect(transactions).toContain(transactionsData[0]);
+  //   })
   // });
   // it("should get all transactions for a user_id ordered by date des", () => {});
   // it("should limit transactions read to 2 with an offset of 1 for a user_id & ordered by date asc", () => {});
 });
 
 describe("TransactionQuery", () => {
-  it("should create a query for 'incoming', 'other', order by date ASC, limit by 10 & offset by 5", () => {
+  it("should create a query for 'inbound', 'other', order by date ASC, limit by 10 & offset by 5", () => {
     const userId = 1;
     const query = new model.TransactionQuery(userId)
-      .filterBy("type", "incoming")
+      .filterBy("type", "inbound")
       .filterBy("category", "other")
       .orderBy("date", "asc")
       .limitBy(10)
@@ -111,7 +117,7 @@ describe("TransactionQuery", () => {
     return query.execute().then((successData) => {
       expect(successData).toEqual([]);
       expect(query.innerSQL).toBe(
-        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 AND type = 'incoming' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
+        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 AND type = 'inbound' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
       );
     });
   });

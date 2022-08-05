@@ -80,12 +80,11 @@ module.exports.getByUserId = (userId) => {
     });
   });
 };
-//TODO correct incoming & outgoing fields to out inbound & outbound respectively
 class TransactionQuery {
   static filters = [
     {
       field: "type",
-      values: ["incoming", "outgoing"],
+      values: ["inbound", "outbound"],
     },
     {
       field: "category",
