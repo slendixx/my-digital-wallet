@@ -1,9 +1,6 @@
 const userModel = require("../src/model/user");
 const { clear } = require("../src/model/dbConnectivity");
 const model = require("../src/model/transaction");
-const { query } = require("express");
-beforeEach(async () => await clear());
-afterEach(async () => await clear());
 
 const userData = {
   email: "esteban@abc.com",
@@ -23,12 +20,22 @@ const transactionData2 = {
   category: "taxes",
   description: "",
 };
+let createdUserData;
+let transaction1Data;
+let transaction2Data;
+beforeEach(async () => {
+  await clear();
+  createdUserData = await userModel.create(userData);
+  transactionData1.user_id = createdUserData.id;
+  transactionData2.user_id = createdUserData.id;
+  transaction1Data = await model.create(transactionData1);
+  transaction2Data = await model.create(transactionData2);
+  //user Balance is now 50
+});
 
+afterEach(async () => await clear());
 describe("Transaction Model", () => {
   it("should create a transaction", async () => {
-    const createdUserData = await userModel.create(userData);
-    transactionData1.user_id = createdUserData.id;
-
     return model.create(transactionData1).then(async (createdTransaction) => {
       expect(createdTransaction.id).toBeDefined();
       expect(createdTransaction.amount).toBe(transactionData1.amount);
@@ -38,14 +45,11 @@ describe("Transaction Model", () => {
       expect(createdTransaction.date).toBeDefined();
 
       const user = await userModel.getById(transactionData1.user_id);
-      expect(user.balance).toBe(100);
+      expect(user.balance).toBe(150);
     });
   });
 
   it("should delete a transaction by id and decrease user balance by the transaction amount", async () => {
-    const createdUserData = await userModel.create(userData);
-    transactionData1.user_id = createdUserData.id;
-
     const createdTransaction = await model.create(transactionData1);
     const message = await model.delete(createdTransaction.id);
     expect(message).toBe("transaction deleted");
@@ -54,8 +58,7 @@ describe("Transaction Model", () => {
   });
 
   it("should update amount, category, description by transaction id", async () => {
-    const createdUserData = await userModel.create(userData);
-    transactionData1.user_id = createdUserData.id;
+    transactionData1.user_id = transaction1Data.user_id;
     const createdTransaction = await model.create(transactionData1);
     //user.balance is now 100
     const newData = {
@@ -72,8 +75,8 @@ describe("Transaction Model", () => {
         expect(updatedTransaction.category).toBe(newData.category);
         expect(updatedTransaction.description).toBe(newData.description);
 
-        const user = await userModel.getById(createdUserData.id);
-        expect(user.balance).toBe(200);
+        const user = await userModel.getById(createdTransaction.user_id);
+        expect(user.balance).toBe(250);
       });
   });
 });
@@ -81,20 +84,12 @@ describe("Transaction Model", () => {
 describe("Transaction get", () => {
   it("should get all transactions for a user id", async () => {
     //TODO refactor the next 3 lines to remove duplication
-    const createdUserData = await userModel.create(userData);
-    transactionData1.user_id = createdUserData.id;
-    transactionData2.user_id = createdUserData.id;
-    const transactionsData = [
-      await model.create(transactionData1),
-      await model.create(transactionData2),
-    ];
 
     return model.getByUserId(createdUserData.id).then((transactions) => {
-      expect(transactions).toEqual(transactionsData);
+      expect(transactions).toEqual([transaction1Data, transaction2Data]);
     });
   });
   it("should get all transactions for a user_id & category 'other' ", async () => {
-    const createdUserData = await userModel.create(userData);
     transactionData1.user_id = createdUserData.id;
     transactionData2.user_id = createdUserData.id;
     const transactionsData = [
@@ -110,7 +105,6 @@ describe("Transaction get", () => {
     });
   });
   it("should get all transactions for a user_id ordered by amount asc", async () => {
-    const createdUserData = await userModel.create(userData);
     transactionData1.user_id = createdUserData.id;
     transactionData2.user_id = createdUserData.id;
     const transactionsData = [
@@ -127,7 +121,6 @@ describe("Transaction get", () => {
     });
   });
   it("should limit transactions to 1", async () => {
-    const createdUserData = await userModel.create(userData);
     transactionData1.user_id = createdUserData.id;
     transactionData2.user_id = createdUserData.id;
     const transactionsData = [
@@ -144,15 +137,8 @@ describe("Transaction get", () => {
     });
   });
   it("should limit transactions read to 2 with an offset of 1", async () => {
-    const createdUserData = await userModel.create(userData);
-    transactionData1.user_id = createdUserData.id;
-    transactionData2.user_id = createdUserData.id;
-    const transactionsData = [
-      await model.create(transactionData1),
-      await model.create(transactionData2),
-    ];
     const queryOptions = {
-      user_id: transactionsData[0].user_id,
+      user_id: transaction1Data.user_id,
       limit: 2,
       offset: 1,
     };
