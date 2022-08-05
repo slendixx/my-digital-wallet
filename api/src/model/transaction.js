@@ -91,11 +91,11 @@ class TransactionQuery {
       values: ["other", "taxes"],
     },
   ];
-  static orderFields = new Set(["date", "amount"]);
+  static orderFields = ["date", "amount"];
 
   constructor(userId) {
     this.innerSQL =
-      "SELECT id,amount,type,category,description,user_id,date FROM transaction {filter} {order} {limit} {offset};";
+      "SELECT id,amount,type,category,description,user_id,date FROM transaction {filter}{order}{limit}{offset};";
     this.appliedFilters = [];
     this.orderField = "date";
     this.orderDirection = "asc";
@@ -117,13 +117,13 @@ class TransactionQuery {
     return this;
   }
   orderBy(field, direction) {
-    if (!TransactionQuery.orderFields.has(field)) return this;
+    if (!TransactionQuery.orderFields.includes(field)) return this;
     this.orderField = field;
     if (!(direction === "asc" || direction === "des")) return this;
     this.orderDirection = direction;
     return this;
   }
-  limitBy(amount) {
+  limitTo(amount) {
     if (amount < 0) return this;
     this.limitAmount = amount;
     return this;
@@ -142,13 +142,13 @@ class TransactionQuery {
           return ` AND ${filter.field} = '${filter.value}'`;
         })
         .join("");
-    const order = `ORDER BY ${
+    const order = ` ORDER BY ${
       this.orderField
     } ${this.orderDirection.toUpperCase()}`;
 
-    const limit = this.limitAmount !== null ? `LIMIT ${this.limitAmount}` : "";
+    const limit = this.limitAmount !== null ? ` LIMIT ${this.limitAmount}` : "";
     const offset =
-      this.offsetAmount !== null ? `OFFSET ${this.offsetAmount}` : "";
+      this.offsetAmount !== null ? ` OFFSET ${this.offsetAmount}` : "";
 
     this.innerSQL = this.innerSQL
       .replace("{filter}", filters)
