@@ -133,18 +133,15 @@ class TransactionQuery {
     this.offsetAmount = amount;
     return this;
   }
-  #prepareStatement() {
+  prepareStatement() {
     const filters =
       "WHERE user_id = " +
       this.userId +
-      " AND" +
       this.appliedFilters
         .map((filter, index) => {
-          return `${index !== 0 ? "AND" : ""} ${filter.field} = '${
-            filter.value
-          }'`;
+          return ` AND ${filter.field} = '${filter.value}'`;
         })
-        .join(" ");
+        .join("");
     const order = `ORDER BY ${
       this.orderField
     } ${this.orderDirection.toUpperCase()}`;
@@ -161,7 +158,7 @@ class TransactionQuery {
   }
   execute() {
     return new Promise(async (resolve, reject) => {
-      this.#prepareStatement();
+      this.prepareStatement();
       const connection = await createConnection();
       connection.execute(this.innerSQL, [], (error, results) => {
         if (error) reject(error);
