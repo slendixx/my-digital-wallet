@@ -162,9 +162,35 @@ class TransactionQuery {
       const connection = await createConnection();
       connection.execute(this.innerSQL, [], (error, results) => {
         if (error) reject(error);
+        connection.end();
         resolve(results);
       });
     });
   }
 }
 module.exports.TransactionQuery = TransactionQuery;
+
+//TODO add validation to these fields here or in some middleware
+module.exports.get = ({ user_id, filters, order, limit, offset }) => {
+  return new Promise(async (resolve, reject) => {
+    const query = new TransactionQuery(user_id);
+    if (filters !== undefined) {
+      filters.forEach((filter) => {
+        query.filterBy(filter.field, filter.value);
+      });
+    }
+    if (order !== undefined) {
+      query.orderBy(order.field, order.value);
+    }
+    if (limit !== undefined) {
+      query.limitTo(limit);
+    }
+    if (offset !== undefined) {
+      query.offsetBy(offset);
+    }
+
+    const transactions = await query.execute();
+
+    resolve(transactions);
+  });
+};

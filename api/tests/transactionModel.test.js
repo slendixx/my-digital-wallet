@@ -93,32 +93,96 @@ describe("Transaction get", () => {
       expect(transactions).toEqual(transactionsData);
     });
   });
-  // it("should get all transactions for a user_id & category 'other' ", () => {
-  //   const queryOptions = {
-  //     new Filer
-  //   }
-  //   return model.get(queryOptions).then(()=>{
-  //     expect(transactions).toContain(transactionsData[0]);
-  //   })
-  // });
-  // it("should get all transactions for a user_id ordered by date des", () => {});
-  // it("should limit transactions read to 2 with an offset of 1 for a user_id & ordered by date asc", () => {});
+  it("should get all transactions for a user_id & category 'other' ", async () => {
+    const createdUserData = await userModel.create(userData);
+    transactionData1.user_id = createdUserData.id;
+    transactionData2.user_id = createdUserData.id;
+    const transactionsData = [
+      await model.create(transactionData1),
+      await model.create(transactionData2),
+    ];
+    const queryOptions = {
+      user_id: transactionsData[0].user_id,
+      filters: [{ field: "category", value: "other" }],
+    };
+    return model.get(queryOptions).then((transactions) => {
+      expect(transactions[0].category).toBe("other");
+    });
+  });
+  it("should get all transactions for a user_id ordered by amount asc", async () => {
+    const createdUserData = await userModel.create(userData);
+    transactionData1.user_id = createdUserData.id;
+    transactionData2.user_id = createdUserData.id;
+    const transactionsData = [
+      await model.create(transactionData1),
+      await model.create(transactionData2),
+    ];
+    const queryOptions = {
+      user_id: transactionsData[0].user_id,
+      order: { field: "amount", value: "asc" },
+    };
+
+    return model.get(queryOptions).then((transactions) => {
+      expect(transactions[0].amount).toBe(50);
+    });
+  });
+  it("should limit transactions to 1", async () => {
+    const createdUserData = await userModel.create(userData);
+    transactionData1.user_id = createdUserData.id;
+    transactionData2.user_id = createdUserData.id;
+    const transactionsData = [
+      await model.create(transactionData1),
+      await model.create(transactionData2),
+    ];
+    const queryOptions = {
+      user_id: transactionsData[0].user_id,
+      limit: 1,
+    };
+
+    return model.get(queryOptions).then((transactions) => {
+      expect(transactions.length).toBe(1);
+    });
+  });
+  it("should limit transactions read to 2 with an offset of 1", async () => {
+    const createdUserData = await userModel.create(userData);
+    transactionData1.user_id = createdUserData.id;
+    transactionData2.user_id = createdUserData.id;
+    const transactionsData = [
+      await model.create(transactionData1),
+      await model.create(transactionData2),
+    ];
+    const queryOptions = {
+      user_id: transactionsData[0].user_id,
+      limit: 2,
+      offset: 1,
+    };
+
+    return model.get(queryOptions).then((transactions) => {
+      expect(transactions.length).toBe(1);
+    });
+  });
 });
 
 describe("TransactionQuery", () => {
-  it("should create a query for 'inbound', 'other', order by date ASC, limit by 10 & offset by 5", () => {
+  it("should create a query for a user_id 'inbound', 'other', order by date ASC, limit by 10 & offset by 5", () => {
     const userId = 1;
     const query = new model.TransactionQuery(userId)
       .filterBy("type", "inbound")
       .filterBy("category", "other")
       .orderBy("date", "asc")
-      .limitBy(10)
+      .limitTo(10)
       .offsetBy(5);
-    return query.execute().then((successData) => {
-      expect(successData).toEqual([]);
-      expect(query.innerSQL).toBe(
-        "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 AND type = 'inbound' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
-      );
-    });
+    query.prepareStatement();
+    expect(query.innerSQL).toBe(
+      "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 AND type = 'inbound' AND category = 'other' ORDER BY date ASC LIMIT 10 OFFSET 5;"
+    );
+  });
+  it("should create a query for a user_id", () => {
+    const user_id = 1;
+    const query = new model.TransactionQuery(user_id);
+    query.prepareStatement();
+    expect(query.innerSQL).toEqual(
+      "SELECT id,amount,type,category,description,user_id,date FROM transaction WHERE user_id = 1 ORDER BY date ASC;"
+    );
   });
 });
