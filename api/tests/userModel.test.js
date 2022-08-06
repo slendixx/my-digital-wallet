@@ -17,6 +17,7 @@ describe("User Model", () => {
       expect(createdUser.first_name).toBe(userData.firstName);
       expect(createdUser.last_name).toBe(userData.lastName);
       expect(createdUser.balance).toBe(0);
+      expect(createdUser.password).not.toBe(userData.password);
     });
   });
 
