@@ -1,6 +1,7 @@
 const model = require("../src/model/user");
 const { clear } = require("../src/model/dbConnectivity");
 
+beforeEach(async () => await clear());
 afterEach(async () => await clear());
 
 const userData = {
@@ -26,6 +27,17 @@ describe("User Model", () => {
 
     return model.getById(createdUser.id).then((userData) => {
       expect(userData).toEqual(createdUser);
+    });
+  });
+  it("should get user by it's email", async () => {
+    const createdUser = await model.create(userData);
+
+    return model.getByEmail(createdUser.email).then((userData) => {
+      expect(createdUser.id).toBe(userData.id);
+      expect(createdUser.email).toBe(userData.email);
+      expect(createdUser.firstName).toBe(userData.first_Name);
+      expect(createdUser.lastName).toBe(userData.last_Name);
+      expect(createdUser.balance).toBe(0);
     });
   });
 });
