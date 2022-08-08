@@ -1,4 +1,4 @@
-const { hash, compare } = require("../src/security/passwords");
+const { hash, compare } = require("../src/authentication/passwords");
 describe("Password hashing", () => {
   it("should hash user password", async () => {
     const userPassword = "esteban12345";
