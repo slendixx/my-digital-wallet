@@ -2,14 +2,15 @@ const model = require("../src/model/user");
 const { clear } = require("../src/model/dbConnectivity");
 
 beforeEach(async () => await clear());
-afterEach(async () => await clear());
+afterAll(async () => await clear());
 
 const userData = {
-  email: "esteban@abc.com",
+  email: "esteban1@abc.com",
   firstName: "esteban",
   lastName: "duran",
   password: "esteban12345",
 };
+//TODO refactor to remove duplication
 describe("User Model", () => {
   it("should create user and return it's data", () => {
     return model.create(userData).then((createdUser) => {

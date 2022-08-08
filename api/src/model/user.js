@@ -1,5 +1,5 @@
 const { createConnection } = require("./dbConnectivity");
-const { hash, compare } = require("../security/passwords");
+const { hash } = require("../authentication/passwords");
 
 const selectQuery =
   "SELECT first_name, last_name, email,balance, id, password FROM user WHERE id = ?;";

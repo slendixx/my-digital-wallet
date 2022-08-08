@@ -3,7 +3,7 @@ const { clear } = require("../src/model/dbConnectivity");
 const model = require("../src/model/transaction");
 
 const userData = {
-  email: "esteban@abc.com",
+  email: "esteban2@abc.com",
   firstName: "esteban",
   lastName: "duran",
   password: "esteban12345",
@@ -32,8 +32,8 @@ beforeEach(async () => {
   transaction2Data = await model.create(transactionData2);
   //user Balance is now 50
 });
+afterAll(async () => await clear());
 
-afterEach(async () => await clear());
 describe("Transaction Model", () => {
   it("should create a transaction", async () => {
     return model.create(transactionData1).then(async (createdTransaction) => {
